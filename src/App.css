@@ -39,6 +39,7 @@ div.msg-info {
   border-radius: 5px;
   letter-spacing: 1px;
   box-shadow: 0 0 12px #777;
+  z-index: 7;
 }
 
 div.msg-info.error {
@@ -197,7 +198,7 @@ div.add-wrapper label.button {
   margin-right: 20px;
   /* float: right; */
   border: none;
-  background: linear-gradient(#777, #ccc, #777);
+  background: linear-gradient(#050444, #aaa, #050444);
   padding: 8px 10px;
   color: #fff;
   border-radius: 2px;
@@ -211,45 +212,61 @@ div.add-wrapper label.button:hover {
   opacity: 0.8;
 }
 
-div.dashboard div.cards-button {
+
+div.dashboard div._flex {
   display: flex;
-  justify-content: space-around;
-  margin: 20px 0px;
+  /* border: 1px solid; */
+}
+
+div._flex aside.left {
+  width: 200px;
+  overflow: hidden;
+  /* border: 1px solid; */
+}
+
+div._flex main.main {
+  flex: 1;
+  background: #eee;
+  border-left: 1px solid #aaa;
+}
+
+div.dashboard div.cards-button {
+  /* display: flex; */
+  /* justify-content: space-around; */
+  /* margin: 20px 0px; */
+  padding: 5px 0px;
 }
 
 div.cards-button div.card-btn {
-  width: 231px;
-  height: 50px;
-  border: 1px solid #777;
-  box-shadow: 0 0 8px #666666;
-  border-radius: 20px 20px 0 0;
-  text-align: center;
-  line-height: 2.4;
-  font-size: 20px;
+  width: 100%;
+  /* height: 50px; */
+  /* border: 1px solid #777; */
+  text-align: left;
+  padding: 0px 30px;
+  line-height: 2.5;
+  font-size: 14px;
   font-weight: 600;
-  color: #777;
+  color: #333;
   letter-spacing: 1px;
-  cursor: pointer;
-}
-
-div.cards-button div.card-btn:hover {
-  box-shadow: 0 0 16px #666666;
 }
 
 div.cards-button div.card-btn.active {
-  background: #aaa;
-  color: #eee;
+  background: #ccc;
+  color: #050ccc;
   border: none;
-  box-shadow: 0 0 12px #333333;
+}
+
+div.cards-button div.card-btn:hover {
+  background: #bbb;
+  cursor: pointer;
 }
 
 div.cards-wrapper {
-  margin: 10px;
-  margin-top: 30px;
-  border-radius: 10px;
-  box-shadow: 0 0 12px #777;
-  min-height: 400px;
-  padding: 20px;
+  margin: 0px 10px;
+  /* border-radius: 10px; */
+  height: 500px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 div.cards-wrapper ul.cards {
@@ -259,8 +276,8 @@ div.cards-wrapper ul.cards {
 }
 
 ul.cards li.card {
-  width: 140px;
-  height: 100px;
+  width: 200px;
+  height: 150px;
   border: 1px solid #aaa;
   border-radius: 5px;
   overflow: hidden;
@@ -275,33 +292,47 @@ div.item a.item-link{
   overflow: hidden;
 }
 
+a.item-link img.gallery-img {
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+}
+
 li.card div.item-title {
   position: absolute;
   bottom: 0px;
   text-align: center;
   width: 100%;
-  background: red;
-  /* background: #777; */
-  padding: 4px;
+  background: #777;
+  padding: 7px;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1px;
   color: #fff;
   opacity: 0;
+  text-transform: uppercase;
 }
 
 li.card div.item-del {
   position: absolute;
   top: 0px;
   right: 0px;
-  font-size: 10px;
+  font-size: 30px;
   font-weight: 600;
-  color: #ccc;
+  color: #666;
   padding: 4px;
-  background: #444;
+  /* background: #444; */
   letter-spacing: 0.6px;
   opacity: 0;
   transition: 0.5s;
+}
+
+li.card div.item-del.delete {
+  color: red;
+}
+
+li.card div.item-del.undelete {
+  color: green;
 }
 
 li.card:hover div.item-title,
@@ -311,7 +342,7 @@ li.card:hover div.item-del {
 }
 
 li.card div.item-title:hover,
-li.card div.item-del:hover {
+li.card div.item-del:hover{
   opacity: 0.8;
 }
 
@@ -325,6 +356,70 @@ div._no-data {
   font-size: 30px;
   text-transform: uppercase;
   font-weight: 600;
-  color: #333;
+  color: #aaa;
+  margin-top: 50px;
 }
+
+div._modal {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background: rgba(0,0,0,.5);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  z-index: 5;
+}
+
+div._modal div.modal-form {
+  width: 250px;
+  height: auto;
+  margin: auto;
+  background: #aaa;
+  border-radius: 5px;
+}
+
+div.modal-form header.modal-header {
+  position: relative;
+  padding: 6px;
+  text-align: center;
+  background: #10005e;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 5px 5px 0 0;
+  letter-spacing: 1px;
+}
+
+header.modal-header span.cancel {
+  display: inline-block;
+  position: absolute;
+  right: 4px;
+  color: red;
+  cursor: pointer;
+}
+
+div.modal-form input.file {
+  padding: 4px;
+}
+
+div.modal-form form._form {
+  padding: 15px;
+  padding-bottom: 5px;
+}
+
+div.modal-form button.button {
+  border: none;
+  font-size: 14px;
+  padding: 5px 7px;
+  border-radius: 3px;
+  color: #eee;
+  background: #10005e;
+  cursor: pointer;
+}
+
+div.modal-form button.button:hover {
+  opacity: 0.8;
+}
+
 

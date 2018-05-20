@@ -18,20 +18,27 @@ class Dashboard extends Component {
     super(props);
 
     this.state = { 
+      isInitializing: true,
       isLoading: true,
       info: null,
       files: [],
       _showSavedFiles: true,
+      _showModal: false,
+      caption: "",
+      file: "",
     };
 
     this.timerID = null;
     this.addFile = this.addFile.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
     this.showSavedFiles = this.showSavedFiles.bind(this);
     this.showTrashedFiles = this.showTrashedFiles.bind(this);
     this.toggleSavedFiles = this.toggleSavedFiles.bind(this);
     this.toggleTrashedFiles = this.toggleTrashedFiles.bind(this);
     this.removeFile = this.removeFile.bind(this);
     this.logout = this.logout.bind(this);
+    this.toggleModalWindow = this.toggleModalWindow.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   componentWillMount(){
@@ -45,11 +52,12 @@ class Dashboard extends Component {
       .then(data => {
         this.setState({
           isLoading: false, 
+          isInitializing: false,
           files: data.data.payload,
         });
       })
       .catch(data => {
-        this.setState({isLoading: false});
+        this.setState({isLoading: false, isInitializing: false,});
       })
   }
 
@@ -60,21 +68,87 @@ class Dashboard extends Component {
     }
   }
 
+  onChange(e){
+    this.setState({[e.target.name]: e.target.value});
+  }
+
   logout(){
     this.props.Logout();
     this.props.history.replace("/", null);
+  }
+
+  onSubmit(e){
+    e.preventDefault();
+    let {caption, file} = this.state;
+
+    let name = "";
+
+    if(!caption || !file){
+      const data = {
+        success: false, 
+        message: "All fields are required",
+      };
+      this.setState({info: data});
+      this.setOrClearInfo();
+      return;
+    }
+
+    if(file && file.name)
+      name = file.name;
+
+    if(!this.isValidFile(name.toLowerCase())){
+      return;
+    }
+
+    this.setState({isLoading: true});
+
+    const formData = new FormData();
+    formData.append("caption", caption);
+    formData.append("avatar", file, file.name);
+
+    this.props.AddFileRequest(formData)
+      .then(data => {
+        this.setState({
+          isLoading: false, 
+          info: data.data,
+          files: [...this.state.files, data.data.payload],
+          _showModal: false,
+          caption: "",
+          file: "",
+        });
+        this.setOrClearInfo();
+      })
+      .catch(data => {
+        this.setState({isLoading: false, info: data.response.data});
+        this.setOrClearInfo();
+      })
+
   }
 
   addFile(e){
 
     let files = e.target.files;
 
-    if(!files && !files.length)
+    if(!files.length ){
+      this.setState({
+        file: "",
+      })
       return;
+    }
 
     let file = files[0];
     let name = file.name.toLowerCase();
 
+    if(!this.isValidFile(name)){
+      return;
+    }
+
+    this.setState({
+      file 
+    })
+  }
+
+  isValidFile(name){
     if(
       !name.includes(".jpg", name.length - 4)
       && !name.includes(".png", name.length - 4)
@@ -87,27 +161,10 @@ class Dashboard extends Component {
       };
       this.setState({info: data});
       this.setOrClearInfo();
-      return;
+      return false;
     }
 
-    this.setState({isLoading: true});
-
-    const formData = new FormData();
-    formData.append("avatar", file, name);
-
-    this.props.AddFileRequest(formData)
-      .then(data => {
-        this.setState({
-          isLoading: false, 
-          info: data.data,
-          files: [...this.state.files, data.data.payload],
-        });
-        this.setOrClearInfo();
-      })
-      .catch(data => {
-        this.setState({isLoading: false, info: data.response.data});
-        this.setOrClearInfo();
-      })
+    return true;
   }
 
   setOrClearInfo(){
@@ -165,6 +222,53 @@ class Dashboard extends Component {
       })
   }
 
+  toggleModalWindow(){
+    this.setState({
+      _showModal: !this.state._showModal,
+      caption: "",
+      file: "",
+    })
+  }
+
+  showModalWindow(){
+    return (
+      <div className="_modal">
+        <div className="modal-form">
+          <header className="modal-header">
+            UPLOAD A FILE
+            <span 
+              onClick={this.toggleModalWindow}
+              className="cancel">
+              <i className="fa fa-close"></i>
+            </span>
+          </header>
+          <form className="_form" onSubmit={this.onSubmit}>
+            <div className="input-wrapper">
+              <input className="input" 
+                onChange={this.onChange}
+                name="caption"
+                value={this.state.caption}
+                placeholder="caption"
+                type="text" />
+            </div>
+            <div className="input-wrapper">
+              {/* <input className="input file" type="file" /> */}
+              <input 
+                className="input file"
+                onChange={this.addFile}
+                type="file" id="file" name="file"/>
+            </div>
+            <div className="input-wrapper">
+              <button type="submit" className="button save">
+                Save
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
   showSavedFiles(data){
     return data.filter(data => {
       if(!data.is_removed){
@@ -181,23 +285,21 @@ class Dashboard extends Component {
                 target="_blank"
                 href={data.fileurl}>
                 <img 
-                  width="100%"
-                  height="100%"
+                  className="gallery-img"
                   src={data.fileurl} 
                   alt={data.fileid} />
               </a>
             </div>
             {/* <!-- end of item --> */}
             <div 
-              onClick={()=>this.removeFile(data)}
               className="item-title">
-              remove
+              {this.truncateTitle(data.caption) || 'No caption'}
             </div>
             {/* <!-- end of item title --> */}
             <div 
-              style={{"display": "none"}}
-              className="item-del">
-              delete
+              onClick={()=>this.removeFile(data)}
+              className="item-del delete">
+              <i className="fa fa-trash"></i>
             </div>
             {/* <!-- end of item del --> */}
           </li>
@@ -221,28 +323,33 @@ class Dashboard extends Component {
                 target="_blank"
                 href={data.fileurl}>
                 <img 
-                  width="100%"
-                  height="100%"
+                  className="gallery-img"
                   src={data.fileurl} 
                   alt={data.fileid} />
               </a>
             </div>
             {/* <!-- end of item --> */}
             <div 
-              onClick={()=>this.undoRemoveFile(data)}
               className="item-title">
-              undo removal
+              {this.truncateTitle(data.caption) || 'No caption'}
             </div>
             {/* <!-- end of item title --> */}
             <div 
-              style={{"display": "none"}}
-              className="item-del">
-              delete
+              onClick={()=>this.undoRemoveFile(data)}
+              className="item-del undelete">
+              <i className="fa fa-check"></i>
             </div>
             {/* <!-- end of item del --> */}
           </li>
         )
       })
+  }
+
+  truncateTitle(title){
+    if(title.length > 22){
+      return title.substring(0, 22) + "...";
+    }
+    return title;
   }
 
   toggleSavedFiles(){
@@ -260,6 +367,8 @@ class Dashboard extends Component {
       info,
       files,
       _showSavedFiles,
+      _showModal,
+      isInitializing,
     } = this.state;
 
     const noSavedFile = !this.showSavedFiles(files).length;
@@ -270,56 +379,66 @@ class Dashboard extends Component {
         <Header logout={this.logout} />
         {info && <MsgInfo info={info} />}
         {isLoading && <Loading />}
-        {!isLoading && <div className="dashboard">
+        {!isInitializing && <div className="dashboard">
           <div className="add-wrapper">
             <label 
-              htmlFor="file"
+              onClick={this.toggleModalWindow}
+              htmlFor=""
               className="button add-file">
-              Add File
+              <i className="fa fa-upload"></i> &nbsp; Add File
             </label>
-            <input 
-              onChange={this.addFile}
-              style={{"display": "none"}}
-              type="file" id="file" name="file"/>
           </div>
           {/* <!-- end of add wrapper --> */}
 
+          <hr/>
 
-          <div className="cards-button">
-            <div 
-              onClick={this.toggleSavedFiles}
-              className={_showSavedFiles ? "card-btn active" : "card-btn"}>
-              SAVED FILES
-            </div>
-            {/* <!-- end of card btn --> */}
-            <div 
-              onClick={this.toggleTrashedFiles}
-              className={!_showSavedFiles ? "card-btn active" : "card-btn"}>
-              TRASHED FILES
-            </div>
-            {/* <!-- end of card btn --> */}
-          </div>
-          {/* <!-- end of cards header --> */}
+          <div className="_flex">
+            <aside className="left">
+              <div className="cards-button">
+                <div 
+                  onClick={this.toggleSavedFiles}
+                  className={_showSavedFiles ? "card-btn active" : "card-btn"}>
+                  <i className="fa fa-folder-open-o"></i> &nbsp; Gallery
+                </div>
+                {/* <!-- end of card btn --> */}
+                <div 
+                  onClick={this.toggleTrashedFiles}
+                  className={!_showSavedFiles ? "card-btn active" : "card-btn"}>
+                  <i className="fa fa-trash-o"></i> &nbsp;  Trash
+                </div>
+                {/* <!-- end of card btn --> */}
+              </div>
+              {/* <!-- end of cards header --> */}
+            </aside>
+            {/* <!-- end of aside left --> */}
 
-          <div className="cards-wrapper">
-            <ul className="cards">
-              {_showSavedFiles && this.showSavedFiles(files)}
-              {!_showSavedFiles && this.showTrashedFiles(files)}
-            </ul>
-            {
-              noSavedFile && _showSavedFiles && 
-                <div className="_no-data">
-                  NO SAVED FILE YET
-                </div>
-            }
-            {
-              noTrashedFile && !_showSavedFiles && 
-                <div className="_no-data">
-                  NO TRASHED FILE YET
-                </div>
-            }
+            <main className="main">
+              <div className="cards-wrapper">
+                <ul className="cards">
+                  {_showSavedFiles && this.showSavedFiles(files)}
+                  {!_showSavedFiles && this.showTrashedFiles(files)}
+                </ul>
+                {
+                  noSavedFile && _showSavedFiles && 
+                    <div className="_no-data">
+                      NO FILE HERE
+                    </div>
+                }
+                {
+                  noTrashedFile && !_showSavedFiles && 
+                    <div className="_no-data">
+                      NO FILE HERE
+                    </div>
+                }
+              </div>
+              {/* <!-- end of card wrapper --> */}
+            </main>
+            {/* <!-- end of main --> */}
           </div>
-          {/* <!-- end of card wrapper --> */}
+          {/* <!-- end of flex --> */}
+          {
+            _showModal && this.showModalWindow()
+          }
         </div>
         }
       </span>
