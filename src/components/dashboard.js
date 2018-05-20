@@ -73,7 +73,7 @@ class Dashboard extends Component {
       return;
 
     let file = files[0];
-    let name = file.name;
+    let name = file.name.toLowerCase();
 
     if(
       !name.includes(".jpg", name.length - 4)
