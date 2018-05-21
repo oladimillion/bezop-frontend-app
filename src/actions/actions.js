@@ -3,7 +3,11 @@ import jwtDecode from "jwt-decode";
 import SetAuthToken from "../auth-token";
 import  { USER } from "./types";
 
-const API = "";
+let API = "";
+if(process.env.NODE_ENV != "production")
+  API = "http://localhost:8000";
+
+
 
 export function SetCurrentUser(data){ 
   // saving user's data in the store

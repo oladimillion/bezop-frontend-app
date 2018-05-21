@@ -40,6 +40,7 @@ div.msg-info {
   letter-spacing: 1px;
   box-shadow: 0 0 12px #777;
   z-index: 7;
+  transition: 0.5s;
 }
 
 div.msg-info.error {
@@ -206,6 +207,7 @@ div.add-wrapper label.button {
   cursor: pointer;
   display: inline-block;
   font-size: 13px;
+  transition: 0.5s;
 }
 
 div.add-wrapper label.button:hover {
@@ -228,6 +230,7 @@ div._flex main.main {
   flex: 1;
   background: #eee;
   border-left: 1px solid #aaa;
+  transition: 0.5s;
 }
 
 div.dashboard div.cards-button {
@@ -248,6 +251,7 @@ div.cards-button div.card-btn {
   font-weight: 600;
   color: #333;
   letter-spacing: 1px;
+  transition: 0.5s;
 }
 
 div.cards-button div.card-btn.active {
@@ -283,6 +287,7 @@ ul.cards li.card {
   overflow: hidden;
   margin: 10px;
   position: relative;
+  transition: 0.5s;
 }
 
 li.card div.item,
@@ -300,7 +305,7 @@ a.item-link img.gallery-img {
 
 li.card div.item-title {
   position: absolute;
-  bottom: 0px;
+  bottom: -3px;
   text-align: center;
   width: 100%;
   background: #777;
@@ -311,6 +316,7 @@ li.card div.item-title {
   color: #fff;
   opacity: 0;
   text-transform: uppercase;
+  transition: 0.5s;
 }
 
 li.card div.item-del {
@@ -369,6 +375,7 @@ div._modal {
   height: 100%;
   display: flex;
   z-index: 5;
+  transition: 0.5s;
 }
 
 div._modal div.modal-form {

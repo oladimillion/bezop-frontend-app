@@ -337,7 +337,7 @@ class Dashboard extends Component {
             <div 
               onClick={()=>this.undoRemoveFile(data)}
               className="item-del undelete">
-              <i className="fa fa-check"></i>
+              <i className="fa fa-heart"></i>
             </div>
             {/* <!-- end of item del --> */}
           </li>
